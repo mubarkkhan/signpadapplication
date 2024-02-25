@@ -229,6 +229,7 @@ function Sign() {
           <button onClick={clear} style={{ backgroundColor: "red" }}>Clear</button>
           <button onClick={download} style={{ backgroundColor: "green", color: "white" }}>Save & download</button>
           <button onClick={retrievesaved} style={{ backgroundColor: "yellow" }}>Retrieve saved signature</button>
+          <button>ok</button>
         </div>
       </div>
     </>
