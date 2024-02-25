@@ -28,6 +28,79 @@ function Sign() {
     update(color,bcolor)
   }, [color, bcolor])
 
+  useEffect(() => {
+    const canvas = swrite.current;
+    const context = canvas.getContext('2d');
+
+    const handleStartDrawing = (event) => {
+      const isTouchEvent = event.type.startsWith('touch');
+      let touchPosition;
+      if (isTouchEvent) {
+        touchPosition = event.touches[0];
+      } else {
+        touchPosition = event.nativeEvent;
+      }
+    
+      if (touchPosition) {
+        const { offsetX, offsetY } = touchPosition;
+        context.beginPath();
+        context.moveTo(offsetX, offsetY);
+        setdrawing(true);
+        setUndoStack((prev)=>[...prev , canvas.toDataURL()])
+      }
+    };
+
+    const handleDraw = (event) => {
+      if (!drawing) return;
+      const isTouchEvent = event.type.startsWith('touch');
+      let touchPosition;
+      if (isTouchEvent) {
+        touchPosition = event.touches[0];
+      } else {
+        touchPosition = event.nativeEvent;
+      }
+    
+      if (touchPosition) {
+        const { offsetX, offsetY } = touchPosition;
+        context.lineTo(offsetX, offsetY);
+        context.stroke();
+        setUndoStack((prev)=>[...prev, canvas.toDataURL()])
+      }
+    };
+
+    const handleDrawingOut = (event) => {
+      const isTouchEvent = event.type.startsWith('touch');
+      let touchPosition;
+      if (isTouchEvent) {
+        touchPosition = event.touches[0];
+      } else {
+        touchPosition = event.nativeEvent;
+      }
+    
+      if (touchPosition) {
+        context.closePath();
+        setdrawing(false);
+      }
+    };
+
+    canvas.addEventListener('touchstart', handleStartDrawing);
+    canvas.addEventListener('touchmove', handleDraw);
+    canvas.addEventListener('touchend', handleDrawingOut);
+    canvas.addEventListener('mousemove', handleDraw);
+    canvas.addEventListener('mousedown', handleStartDrawing);
+    canvas.addEventListener('mouseup', handleDrawingOut);
+
+    // Clean up event listeners in the useEffect cleanup function
+    return () => {
+      canvas.removeEventListener('touchstart', handleStartDrawing);
+      canvas.removeEventListener('touchmove', handleDraw);
+      canvas.removeEventListener('touchend', handleDrawingOut);
+      canvas.removeEventListener('mousemove', handleDraw);
+      canvas.removeEventListener('mousedown', handleStartDrawing);
+      canvas.removeEventListener('mouseup', handleDrawingOut);
+    };
+  }, [drawing]);
+
   const startDrawing = (event) => {
     const canvas = swrite.current;
     const context = canvas.getContext('2d');
@@ -112,6 +185,8 @@ function Sign() {
       context.drawImage(img, 0, 0, canvas.width, canvas.height);
     };
   };
+
+  
   return (
     <>
       <ToastContainer />
